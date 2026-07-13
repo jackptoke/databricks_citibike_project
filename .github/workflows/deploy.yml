@@ -1,9 +1,10 @@
 name: Deploy
 
 # Promote through environments:
-#   - push to main            -> deploy to `test`
-#   - manual run (or a tag)   -> deploy to `prod`, gated by the `prod` GitHub
-#                                Environment (add required reviewers there).
+#   - push to main            -> deploy to `dev`
+#   - manual run (workflow_dispatch) -> deploy to dev / test / prod, each gated
+#                                by its GitHub Environment (add required
+#                                reviewers on `prod` for an approval gate).
 on:
   push:
     branches: [main]
@@ -12,27 +13,27 @@ on:
       target:
         description: Bundle target to deploy
         type: choice
-        options: [test, prod]
-        default: test
+        options: [dev, test, prod]
+        default: dev
 
 concurrency:
-  group: deploy-${{ github.event.inputs.target || 'test' }}
+  group: deploy-${{ github.event.inputs.target || 'dev' }}
   cancel-in-progress: false
 
 jobs:
   deploy:
-    name: Deploy (${{ github.event.inputs.target || 'test' }})
+    name: Deploy (${{ github.event.inputs.target || 'dev' }})
     runs-on: ubuntu-latest
     # Skips cleanly until deploys are enabled: set repo variable
-    # DEPLOY_ENABLED=true and add the DATABRICKS_* secrets below.
+    # DEPLOY_ENABLED=true and add the DATABRICKS_* secrets per environment.
     if: ${{ vars.DEPLOY_ENABLED == 'true' }}
-    # GitHub Environment protection rules (required reviewers) gate prod.
-    environment: ${{ github.event.inputs.target || 'test' }}
+    # Resolves credentials from the matching GitHub Environment (dev/test/prod);
+    # protection rules on `prod` provide a manual approval gate.
+    environment: ${{ github.event.inputs.target || 'dev' }}
     env:
-      TARGET: ${{ github.event.inputs.target || 'test' }}
-      # Credentials resolve from the GitHub Environment named above (dev/test/prod),
-      # so each workspace uses its own service principal. The workspace host comes
-      # from the bundle target in databricks.yml.
+      TARGET: ${{ github.event.inputs.target || 'dev' }}
+      # Each workspace uses its own service principal, taken from the Environment
+      # above. The workspace host comes from the bundle target in databricks.yml.
       DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
       DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
     steps:
