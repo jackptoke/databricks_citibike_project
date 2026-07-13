@@ -68,6 +68,12 @@ The **Bronze → Silver → Gold** stages run as a single orchestrated job
 that is **triggered automatically when new files land** in the source Volume, so
 the pipeline is event-driven rather than scheduled.
 
+![Medallion pipeline runs in Databricks](docs/images/pipeline-runs.png)
+
+> Live runs of the orchestrated job. Note the run **launched _by file arrival_**
+> (not on a schedule), all three tasks succeeding, and Unity Catalog **lineage**
+> tracking 2 upstream and 3 downstream tables.
+
 ### Layer responsibilities
 
 | Layer | Table | Key logic |
