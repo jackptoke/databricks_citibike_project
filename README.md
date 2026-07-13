@@ -137,9 +137,15 @@ Two GitHub Actions workflows implement a promote-through-environments flow:
 - **`deploy.yml`** — on merge to `main`, deploy to **test**; deploying to
   **prod** is gated behind a manual approval (GitHub Environment) / tag.
 
-Authentication uses a **Databricks service principal** via CI secrets
-(`DATABRICKS_HOST`, `DATABRICKS_CLIENT_ID`, `DATABRICKS_CLIENT_SECRET`) — no
-personal tokens in the repo. See [`.github/workflows/`](.github/workflows/).
+Each of `dev` / `test` / `prod` is a **separate Azure Databricks workspace**.
+Environment-specific *config* (host, catalog, cluster, volume path) lives in the
+[`databricks.yml`](databricks.yml) targets, while environment-specific
+*credentials* live in **GitHub Environments** of the same name — each holding its
+own workspace's OAuth service-principal `DATABRICKS_CLIENT_ID` /
+`DATABRICKS_CLIENT_SECRET`. A job that declares `environment: <target>`
+automatically picks up the right secrets (and `prod` can require a manual
+approval). No personal tokens live in the repo. See
+[`.github/workflows/`](.github/workflows/).
 
 ---
 

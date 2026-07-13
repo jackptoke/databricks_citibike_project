@@ -37,13 +37,16 @@ jobs:
   validate-bundle:
     name: Validate bundle (${{ matrix.target }})
     runs-on: ubuntu-latest
-    # Only runs when Databricks credentials are configured as repo secrets.
+    # Only runs when Databricks credentials are configured (per-environment).
     if: ${{ vars.DATABRICKS_CI_ENABLED == 'true' }}
     strategy:
       matrix:
         target: [dev, test]
+    # Pulls DATABRICKS_CLIENT_ID/SECRET from the matching GitHub Environment,
+    # so each workspace uses its own service principal. The host comes from
+    # the bundle target in databricks.yml — no DATABRICKS_HOST needed here.
+    environment: ${{ matrix.target }}
     env:
-      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
       DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
       DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
     steps:

@@ -30,7 +30,9 @@ jobs:
     environment: ${{ github.event.inputs.target || 'test' }}
     env:
       TARGET: ${{ github.event.inputs.target || 'test' }}
-      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      # Credentials resolve from the GitHub Environment named above (dev/test/prod),
+      # so each workspace uses its own service principal. The workspace host comes
+      # from the bundle target in databricks.yml.
       DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
       DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
     steps:
