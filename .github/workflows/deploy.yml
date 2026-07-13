@@ -1,0 +1,43 @@
+name: Deploy
+
+# Promote through environments:
+#   - push to main            -> deploy to `test`
+#   - manual run (or a tag)   -> deploy to `prod`, gated by the `prod` GitHub
+#                                Environment (add required reviewers there).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Bundle target to deploy
+        type: choice
+        options: [test, prod]
+        default: test
+
+concurrency:
+  group: deploy-${{ github.event.inputs.target || 'test' }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy (${{ github.event.inputs.target || 'test' }})
+    runs-on: ubuntu-latest
+    # GitHub Environment protection rules (required reviewers) gate prod.
+    environment: ${{ github.event.inputs.target || 'test' }}
+    env:
+      TARGET: ${{ github.event.inputs.target || 'test' }}
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+      DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Databricks CLI
+        uses: databricks/setup-cli@main
+
+      - name: Validate bundle
+        run: databricks bundle validate --target "$TARGET"
+
+      - name: Deploy bundle
+        run: databricks bundle deploy --target "$TARGET"

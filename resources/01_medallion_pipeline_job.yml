@@ -1,0 +1,61 @@
+resources:
+  jobs:
+    citibike_medallion_job:
+      name: 01 · Citibike Medallion Pipeline (Bronze → Silver → Gold)
+      description: >-
+        Incremental medallion pipeline. Triggered when new files land in the
+        source Volume, it runs Auto Loader ingestion (bronze), Change-Data-Feed
+        driven upserts (silver), and affected-day aggregate recomputation (gold).
+      trigger:
+        pause_status: UNPAUSED
+        file_arrival:
+          url: ${var.source_volume_path}
+          min_time_between_triggers_seconds: 0
+          wait_after_last_change_seconds: 120
+      queue:
+        enabled: true
+      tasks:
+        - task_key: 01_bronze
+          notebook_task:
+            notebook_path: ../src/notebooks/01_bronze/01_bronze_citibike.ipynb
+            source: WORKSPACE
+            base_parameters:
+              env: ${bundle.target}
+              pipeline_id: "{{job.id}}"
+              job_run_id: "{{job.run_id}}"
+              task_run_id: "{{task.run_id}}"
+          existing_cluster_id: ${var.cluster_id}
+          max_retries: 3
+          min_retry_interval_millis: 30000
+          retry_on_timeout: false
+
+        - task_key: 02_silver
+          depends_on:
+            - task_key: 01_bronze
+          notebook_task:
+            notebook_path: ../src/notebooks/02_silver/02_silver_citibike.ipynb
+            source: WORKSPACE
+            base_parameters:
+              env: ${bundle.target}
+              pipeline_id: "{{job.id}}"
+              job_run_id: "{{job.run_id}}"
+              task_run_id: "{{task.run_id}}"
+          existing_cluster_id: ${var.cluster_id}
+          max_retries: 1
+          min_retry_interval_millis: 30000
+
+        - task_key: 03_gold
+          depends_on:
+            - task_key: 02_silver
+          notebook_task:
+            notebook_path: ../src/notebooks/03_gold/03_gold_citibike.ipynb
+            source: WORKSPACE
+            base_parameters:
+              env: ${bundle.target}
+              pipeline_id: "{{job.id}}"
+              job_run_id: "{{job.run_id}}"
+              task_run_id: "{{task.run_id}}"
+          existing_cluster_id: ${var.cluster_id}
+          max_retries: 3
+          min_retry_interval_millis: 30000
+          retry_on_timeout: false

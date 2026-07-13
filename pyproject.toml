@@ -1,0 +1,51 @@
+[project]
+name = "tokedab_cicd_project"
+version = "0.1.0"
+description = "End-to-end Databricks Lakehouse medallion pipeline (Citibike trips) deployed with Databricks Asset Bundles and CI/CD."
+readme = "README.md"
+authors = [{ name = "Jack Toke" }]
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    # Runtime dependencies for jobs and pipelines.
+    # See https://docs.databricks.com/dev-tools/bundles/library-dependencies
+    "databricks-connect==17.3.10",
+    "databricks-sdk[notebook]>=0.117.0",
+    "requests>=2.31",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+    "databricks-dlt",
+    "databricks-connect>=17.3,<17.4",
+    "ipykernel",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+extend-select = ["I"]  # isort-style import sorting
+
+[tool.ruff.lint.per-file-ignores]
+# Databricks notebooks run inside a runtime that injects globals (spark, dbutils,
+# display, …) and legitimately execute config code before their imports.
+"*.ipynb" = ["F821", "E402"]
+
+[tool.pytest.ini_options]
+# Make the shared/ package importable without a mandatory editable install,
+# mirroring how the Databricks notebooks add src/ to sys.path.
+pythonpath = ["src"]
+testpaths = ["tests"]
+markers = [
+    "integration: requires a live Databricks workspace (Spark via Databricks Connect)",
+]

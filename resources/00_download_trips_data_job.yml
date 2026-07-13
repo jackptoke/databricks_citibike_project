@@ -1,0 +1,23 @@
+resources:
+  jobs:
+    download_citibike_data_job:
+      name: 00 · Download Citibike Data
+      description: >-
+        Fetches monthly Jersey City Citibike trip archives from the public S3
+        bucket and lands the extracted CSVs into a Unity Catalog Volume.
+      tasks:
+        - task_key: download_source_files
+          existing_cluster_id: ${var.cluster_id}
+          notebook_task:
+            notebook_path: ../src/notebooks/00_landing/00_download_source_files.ipynb
+            source: WORKSPACE
+            base_parameters:
+              env: ${bundle.target}
+              job_id: "{{job.id}}"
+              job_run_id: "{{job.run_id}}"
+              task_run_id: "{{task.run_id}}"
+          libraries:
+            - pypi:
+                package: requests
+      queue:
+        enabled: true

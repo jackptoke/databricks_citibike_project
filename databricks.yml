@@ -1,0 +1,71 @@
+# This is a Databricks asset bundle definition for tokedab_cicd_project.
+# See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+bundle:
+  name: tokedab_cicd_project
+  uuid: 284fa2f4-ca92-4531-b6be-a63bb1d84599
+
+include:
+  - resources/*.yml
+
+# Variable declarations. These variables are assigned in the dev/test/prod targets below.
+variables:
+  catalog:
+    description: The catalog to use
+  schema:
+    description: The schema to use
+  cluster_id:
+    description: Existing all-purpose cluster the notebook tasks run on
+  source_volume_path:
+    description: UC Volume path Auto Loader watches for new Citibike archives
+
+targets:
+  dev:
+    # The default target uses 'mode: development' to create a development copy.
+    # - Deployed resources get prefixed with '[dev my_user_name]'
+    # - Any job schedules and triggers are paused by default.
+    # See also https://docs.databricks.com/dev-tools/bundles/deployment-modes.html.
+    mode: development
+    default: true
+    workspace:
+      host: https://adb-7405614172025539.19.azuredatabricks.net
+    variables:
+      catalog: databricks_ws_au_east_dev
+      schema: dev
+      cluster_id: 0617-065135-vf7qb3iw
+      source_volume_path: /Volumes/citibike_ext_dev/00_landing/source_data/citibike_trips/
+    presets:
+      artifacts_dynamic_version: true
+  test:
+    mode: production
+    presets:
+      name_prefix: '[test] '
+    workspace:
+      host: https://adb-7405610608524919.19.azuredatabricks.net
+      # We explicitly deploy to /Workspace/Users/jack.toke_outlook.com#ext#@jacktokeoutlook.onmicrosoft.com to make sure we only have a single copy.
+      root_path: /Workspace/Shared/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      catalog: databricks_ws_au_east_test
+      schema: test
+      # Replace with the test workspace's cluster id (kept as a placeholder here).
+      cluster_id: 0000-000000-test0000
+      source_volume_path: /Volumes/citibike_test/00_landing/source_data/citibike_trips/
+    permissions:
+      - user_name: jack.toke_outlook.com#ext#@jacktokeoutlook.onmicrosoft.com
+        level: CAN_MANAGE
+  prod:
+    mode: production
+    presets:
+      name_prefix: '[prod] '
+    workspace:
+      host: https://adb-7405613317938958.18.azuredatabricks.net
+      # We explicitly deploy to /Workspace/Users/jack.toke_outlook.com#ext#@jacktokeoutlook.onmicrosoft.com to make sure we only have a single copy.
+      root_path: /Workspace/Shared/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      catalog: databricks_ws_au_east_prod
+      schema: prod
+      # Replace with the prod workspace's cluster id (kept as a placeholder here).
+      cluster_id: 0000-000000-prod0000
+      source_volume_path: /Volumes/citibike_prod/00_landing/source_data/citibike_trips/
+    permissions:
+      - user_name: jack.toke_outlook.com#ext#@jacktokeoutlook.onmicrosoft.com
+        level: CAN_MANAGE
