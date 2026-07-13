@@ -23,6 +23,9 @@ jobs:
   deploy:
     name: Deploy (${{ github.event.inputs.target || 'test' }})
     runs-on: ubuntu-latest
+    # Skips cleanly until deploys are enabled: set repo variable
+    # DEPLOY_ENABLED=true and add the DATABRICKS_* secrets below.
+    if: ${{ vars.DEPLOY_ENABLED == 'true' }}
     # GitHub Environment protection rules (required reviewers) gate prod.
     environment: ${{ github.event.inputs.target || 'test' }}
     env:
