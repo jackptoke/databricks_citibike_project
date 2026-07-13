@@ -176,8 +176,10 @@ databricks bundle run citibike_medallion_job -t dev
 ```
 
 `dev` deploys an isolated, user-prefixed copy with triggers paused; `test` /
-`prod` deploy production-mode copies. Set each target's `cluster_id` and
-`source_volume_path` in [`databricks.yml`](databricks.yml).
+`prod` deploy production-mode copies. Jobs run on **serverless compute**, so
+there is no cluster to provision per environment — only each target's
+`catalog` / `schema` / `source_volume_path` in
+[`databricks.yml`](databricks.yml).
 
 ---
 
@@ -185,9 +187,9 @@ databricks bundle run citibike_medallion_job -t dev
 
 - Add data-quality expectations (Lakeflow Declarative Pipelines / DLT or
   Great Expectations) between layers.
-- Swap the all-purpose cluster for **serverless** or job clusters.
 - Publish the gold table to a dashboard (trips/day, member vs casual, station
   flows).
+- Add automated data-lineage / freshness monitoring and alerting.
 
 ---
 

@@ -7,7 +7,8 @@ resources:
         bucket and lands the extracted CSVs into a Unity Catalog Volume.
       tasks:
         - task_key: download_source_files
-          existing_cluster_id: ${var.cluster_id}
+          # No compute specified → runs on serverless. `requests` ships in the
+          # serverless base environment, so no extra libraries are needed.
           notebook_task:
             notebook_path: ../src/notebooks/00_landing/00_download_source_files.ipynb
             source: WORKSPACE
@@ -16,8 +17,5 @@ resources:
               job_id: "{{job.id}}"
               job_run_id: "{{job.run_id}}"
               task_run_id: "{{task.run_id}}"
-          libraries:
-            - pypi:
-                package: requests
       queue:
         enabled: true

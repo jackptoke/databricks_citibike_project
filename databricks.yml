@@ -13,8 +13,6 @@ variables:
     description: The catalog to use
   schema:
     description: The schema to use
-  cluster_id:
-    description: Existing all-purpose cluster the notebook tasks run on
   source_volume_path:
     description: UC Volume path Auto Loader watches for new Citibike archives
 
@@ -31,7 +29,6 @@ targets:
     variables:
       catalog: databricks_ws_au_east_dev
       schema: dev
-      cluster_id: 0617-065135-vf7qb3iw
       source_volume_path: /Volumes/citibike_ext_dev/00_landing/source_data/citibike_trips/
     presets:
       artifacts_dynamic_version: true
@@ -46,8 +43,6 @@ targets:
     variables:
       catalog: databricks_ws_au_east_test
       schema: test
-      # Replace with the test workspace's cluster id (kept as a placeholder here).
-      cluster_id: 0000-000000-test0000
       source_volume_path: /Volumes/citibike_test/00_landing/source_data/citibike_trips/
     permissions:
       - user_name: jack.toke_outlook.com#ext#@jacktokeoutlook.onmicrosoft.com
@@ -63,8 +58,6 @@ targets:
     variables:
       catalog: databricks_ws_au_east_prod
       schema: prod
-      # Replace with the prod workspace's cluster id (kept as a placeholder here).
-      cluster_id: 0000-000000-prod0000
       source_volume_path: /Volumes/citibike_prod/00_landing/source_data/citibike_trips/
     permissions:
       - user_name: jack.toke_outlook.com#ext#@jacktokeoutlook.onmicrosoft.com

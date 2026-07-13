@@ -24,7 +24,6 @@ resources:
               pipeline_id: "{{job.id}}"
               job_run_id: "{{job.run_id}}"
               task_run_id: "{{task.run_id}}"
-          existing_cluster_id: ${var.cluster_id}
           max_retries: 3
           min_retry_interval_millis: 30000
           retry_on_timeout: false
@@ -40,7 +39,6 @@ resources:
               pipeline_id: "{{job.id}}"
               job_run_id: "{{job.run_id}}"
               task_run_id: "{{task.run_id}}"
-          existing_cluster_id: ${var.cluster_id}
           max_retries: 1
           min_retry_interval_millis: 30000
 
@@ -55,7 +53,6 @@ resources:
               pipeline_id: "{{job.id}}"
               job_run_id: "{{job.run_id}}"
               task_run_id: "{{task.run_id}}"
-          existing_cluster_id: ${var.cluster_id}
           max_retries: 3
           min_retry_interval_millis: 30000
           retry_on_timeout: false
