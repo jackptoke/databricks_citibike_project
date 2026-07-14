@@ -9,7 +9,7 @@ dependencies = [
     # Runtime dependencies for jobs and pipelines.
     # See https://docs.databricks.com/dev-tools/bundles/library-dependencies
     "databricks-connect==17.3.10",
-    "databricks-sdk[notebook]>=0.117.0",
+    "databricks-sdk[notebook]>=0.120.0",
     "requests>=2.31",
 ]
 
