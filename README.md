@@ -4,16 +4,22 @@ An end-to-end **data engineering** project that ingests ~10 years of public
 [Citibike](https://citibikenyc.com/system-data) trip data, refines it through a
 **Bronze → Silver → Gold medallion architecture** on the Databricks Lakehouse,
 and ships it with **Databricks Asset Bundles** and a **GitHub Actions CI/CD**
-pipeline across `dev` / `test` / `prod` environments.
+pipeline across `dev` / `test` / `prod` environments. Jobs run on **serverless
+compute**, and a **Streamlit executive dashboard** turns the gold table into a
+business-at-a-glance view — no BI subscription required.
 
 <p>
+  <a href="https://databrickscitibikeproject-production.up.railway.app/"><img alt="Live demo" src="https://img.shields.io/badge/▶_Live_dashboard-Railway-0B0D0E?logo=railway&logoColor=white"></a>
   <a href="https://github.com/jackptoke/databricks_citibike_project/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/jackptoke/databricks_citibike_project/actions/workflows/ci.yml/badge.svg"></a>
   <a href="https://github.com/jackptoke/databricks_citibike_project/actions/workflows/deploy.yml"><img alt="Deploy" src="https://github.com/jackptoke/databricks_citibike_project/actions/workflows/deploy.yml/badge.svg"></a>
   <img alt="Databricks" src="https://img.shields.io/badge/Databricks-Asset_Bundles-FF3621?logo=databricks&logoColor=white">
   <img alt="Spark" src="https://img.shields.io/badge/Apache_Spark-Structured_Streaming-E25A1C?logo=apachespark&logoColor=white">
   <img alt="Python" src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white">
+  <img alt="Streamlit" src="https://img.shields.io/badge/Streamlit-dashboard-FF4B4B?logo=streamlit&logoColor=white">
   <img alt="License" src="https://img.shields.io/badge/License-MIT-green">
 </p>
+
+**🔗 Live dashboard:** <https://databrickscitibikeproject-production.up.railway.app/>
 
 ---
 
@@ -26,9 +32,10 @@ pipeline across `dev` / `test` / `prod` environments.
 | **Change Data Feed (CDC)** + idempotent `MERGE` upserts | [Silver notebook](src/notebooks/02_silver/02_silver_citibike.ipynb) |
 | **Correct incremental aggregates** via affected-partition recompute | [Gold notebook](src/notebooks/03_gold/03_gold_citibike.ipynb) |
 | **Schema evolution** across a decade of changing source formats | [`src/shared/canonical.py`](src/shared/canonical.py) |
-| **Infrastructure as code** with multi-env Asset Bundles | [`databricks.yml`](databricks.yml), [`resources/`](resources/) |
+| **Infrastructure as code** with multi-env Asset Bundles on **serverless** | [`databricks.yml`](databricks.yml), [`resources/`](resources/) |
 | **CI/CD**: lint, test, validate, and gated deploys | [`.github/workflows/`](.github/workflows/) |
 | **Tested code**: fast unit tests + Spark integration tests | [`tests/`](tests/) |
+| **Executive analytics dashboard** (Streamlit → Databricks SQL Warehouse) | [`dashboard/`](dashboard/) |
 
 ---
 
@@ -128,8 +135,15 @@ min / max / avg ride duration:
 ├── tests/
 │   ├── unit/                      # No Spark/network — run in CI
 │   └── integration/               # Databricks Connect (Spark) — auto-skipped in CI
+├── dashboard/                     # Streamlit exec dashboard (standalone uv project)
+│   ├── app.py queries.py insights.py databricks_client.py
+│   └── Dockerfile                 # Railway-ready (uv build)
 ├── fixtures/                      # Sample data for tests
-└── .github/workflows/             # CI (validate/lint/test) + CD (deploy)
+├── docs/images/                   # README screenshots
+└── .github/
+    ├── workflows/                 # CI + Deploy + Run job
+    ├── dependabot.yml             # Weekly Actions + uv dep updates
+    └── pull_request_template.md
 ```
 
 ---
@@ -148,7 +162,7 @@ Three GitHub Actions workflows implement a promote-through-environments flow:
   job; this *runs* it — as that environment's service principal.
 
 Each of `dev` / `test` / `prod` is a **separate Azure Databricks workspace**.
-Environment-specific *config* (host, catalog, cluster, volume path) lives in the
+Environment-specific *config* (workspace host, source volume path) lives in the
 [`databricks.yml`](databricks.yml) targets, while environment-specific
 *credentials* live in **GitHub Environments** of the same name — each holding its
 own workspace's OAuth service-principal `DATABRICKS_CLIENT_ID` /
@@ -242,14 +256,17 @@ job fails, so pass/fail shows directly in the Actions run.
 ## Analytics dashboard
 
 A **Streamlit executive dashboard** in [`dashboard/`](dashboard/) reads the
-silver/gold tables directly from a **Databricks SQL Warehouse** (via an OAuth
-service principal — no BI subscription) and presents a single-page business
-snapshot: KPIs, ridership trends, member vs casual mix, commuter demand
-patterns, e-bike adoption, busiest stations, and auto-generated executive
-takeaways. It ships with a `Dockerfile` for one-click deployment to Railway.
-See [`dashboard/README.md`](dashboard/README.md).
+silver/gold tables directly from a **serverless Databricks SQL Warehouse** (via a
+read-only OAuth service principal — no BI subscription) and presents a
+single-page business snapshot: KPIs with period-over-period deltas, ridership
+trends, member vs casual mix, commuter demand patterns, e-bike adoption, busiest
+stations, and auto-generated executive takeaways. It's a self-contained **uv**
+project, isolated from the pipeline, and ships a `Dockerfile` for one-click
+deployment to Railway. See [`dashboard/README.md`](dashboard/README.md).
 
-![Streamlit executive snapshot dashboard](docs/images/dashboard-executive-snapshot.png)
+**▶ Try it live:** <https://databrickscitibikeproject-production.up.railway.app/>
+
+[![Streamlit executive snapshot dashboard](docs/images/dashboard-executive-snapshot.png)](https://databrickscitibikeproject-production.up.railway.app/)
 
 ## Possible extensions
 
