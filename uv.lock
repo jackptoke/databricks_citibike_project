@@ -786,11 +786,12 @@ wheels = [
 
 [[package]]
 name = "tokedab-cicd-project"
-version = "0.0.1"
+version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "databricks-connect" },
     { name = "databricks-sdk", extra = ["notebook"] },
+    { name = "requests" },
 ]
 
 [package.dev-dependencies]
@@ -806,6 +807,7 @@ dev = [
 requires-dist = [
     { name = "databricks-connect", specifier = "==17.3.10" },
     { name = "databricks-sdk", extras = ["notebook"], specifier = ">=0.117.0" },
+    { name = "requests", specifier = ">=2.31" },
 ]
 
 [package.metadata.requires-dev]
@@ -813,8 +815,8 @@ dev = [
     { name = "databricks-connect", specifier = ">=17.3,<17.4" },
     { name = "databricks-dlt" },
     { name = "ipykernel" },
-    { name = "pytest" },
-    { name = "ruff" },
+    { name = "pytest", specifier = ">=8.0" },
+    { name = "ruff", specifier = ">=0.6" },
 ]
 
 [[package]]

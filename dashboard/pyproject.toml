@@ -1,0 +1,28 @@
+[project]
+name = "citibike-dashboard"
+version = "0.1.0"
+description = "Streamlit executive dashboard for the Citibike medallion pipeline."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "streamlit>=1.40",
+    "databricks-sql-connector>=3.4",
+    "databricks-sdk>=0.30",
+    "pandas>=2.2",
+    "plotly>=5.24",
+    "pyarrow>=17",
+]
+
+[dependency-groups]
+dev = ["ruff>=0.6"]
+
+# This is a deployable app, not an installable package — only install the deps.
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+extend-select = ["I"]

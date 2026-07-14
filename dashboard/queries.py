@@ -12,6 +12,7 @@ import datetime as dt
 
 import pandas as pd
 import streamlit as st
+
 from databricks_client import GOLD, SILVER, run_query
 
 _TTL = 3600  # seconds

@@ -36,16 +36,19 @@ The service principal needs `USE CATALOG` / `USE SCHEMA` + `SELECT` on the
 
 ## Run locally
 
+This is a self-contained [uv](https://docs.astral.sh/uv/) project (its own
+`pyproject.toml` + `uv.lock`), isolated from the pipeline package at the repo
+root.
+
 ```bash
 cd dashboard
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env   # fill in your values
-export $(grep -v '^#' .env | xargs)   # or use direnv / a dotenv loader
-streamlit run app.py
+uv sync                              # creates dashboard/.venv from the lockfile
+cp .env.example .env                 # fill in your values
+set -a && source .env && set +a      # load env vars into the shell
+uv run streamlit run app.py
 ```
 
-Or with Docker:
+Or with Docker (matches the Railway build):
 
 ```bash
 docker build -t citibike-dashboard .

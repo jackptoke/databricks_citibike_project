@@ -10,11 +10,12 @@ from __future__ import annotations
 
 import datetime as dt
 
-import insights
 import pandas as pd
 import plotly.express as px
-import queries
 import streamlit as st
+
+import insights
+import queries
 from databricks_client import CATALOG
 
 # --- Theme constants ---------------------------------------------------------
