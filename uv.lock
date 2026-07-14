@@ -134,7 +134,7 @@ wheels = [
 
 [[package]]
 name = "databricks-connect"
-version = "17.3.10"
+version = "18.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "databricks-sdk" },
@@ -151,7 +151,7 @@ dependencies = [
     { name = "zstandard" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/52/72/b437df6d9fbf16bae1eb7a552b42519452ad736a8413c8c5df0621c27695/databricks_connect-17.3.10-py2.py3-none-any.whl", hash = "sha256:46a7735dbeec2ada6c217467c27b2c9f908c0625dd67dd3fd6747518683c9a79", size = 2768061, upload-time = "2026-06-16T12:48:10.716Z" },
+    { url = "https://files.pythonhosted.org/packages/f7/fa/a323e0ff19dd2d147b644ff5a86ae71fcc99ff1cf5111134f07f72a26ac7/databricks_connect-18.3.1-py2.py3-none-any.whl", hash = "sha256:386a9223ede8c250e7f55cc8aaa2cf25f27532d7e2cc4e4d14f4ac09129b8ab3", size = 2938947, upload-time = "2026-06-23T14:21:23.053Z" },
 ]
 
 [[package]]
@@ -805,14 +805,14 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "databricks-connect", specifier = "==17.3.10" },
+    { name = "databricks-connect", specifier = "==18.3.1" },
     { name = "databricks-sdk", extras = ["notebook"], specifier = ">=0.117.0" },
     { name = "requests", specifier = ">=2.31" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "databricks-connect", specifier = ">=17.3,<17.4" },
+    { name = "databricks-connect", specifier = ">=18.3.1,<18.4" },
     { name = "databricks-dlt" },
     { name = "ipykernel" },
     { name = "pytest", specifier = ">=8.0" },
