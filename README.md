@@ -184,7 +184,7 @@ databricks bundle run citibike_medallion_job     -t dev  # run bronze → silver
 `dev` deploys an isolated, user-prefixed copy with triggers paused; `test` /
 `prod` deploy production-mode copies. Jobs run on **serverless compute**, so
 there is no cluster to provision per environment — only each target's
-`catalog` / `schema` / `source_volume_path` in
+workspace `host` and `source_volume_path` in
 [`databricks.yml`](databricks.yml).
 
 > **Deploy ≠ run.** `bundle deploy` only creates/updates the job *definitions*;
