@@ -249,6 +249,8 @@ patterns, e-bike adoption, busiest stations, and auto-generated executive
 takeaways. It ships with a `Dockerfile` for one-click deployment to Railway.
 See [`dashboard/README.md`](dashboard/README.md).
 
+![Streamlit executive snapshot dashboard](docs/images/dashboard-executive-snapshot.png)
+
 ## Possible extensions
 
 - Add data-quality expectations (Lakeflow Declarative Pipelines / DLT or
