@@ -7,7 +7,8 @@ and ships it with **Databricks Asset Bundles** and a **GitHub Actions CI/CD**
 pipeline across `dev` / `test` / `prod` environments.
 
 <p>
-  <img alt="CI" src="https://img.shields.io/badge/CI-GitHub_Actions-2088FF?logo=githubactions&logoColor=white">
+  <a href="https://github.com/jackptoke/databricks_citibike_project/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/jackptoke/databricks_citibike_project/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/jackptoke/databricks_citibike_project/actions/workflows/deploy.yml"><img alt="Deploy" src="https://github.com/jackptoke/databricks_citibike_project/actions/workflows/deploy.yml/badge.svg"></a>
   <img alt="Databricks" src="https://img.shields.io/badge/Databricks-Asset_Bundles-FF3621?logo=databricks&logoColor=white">
   <img alt="Spark" src="https://img.shields.io/badge/Apache_Spark-Structured_Streaming-E25A1C?logo=apachespark&logoColor=white">
   <img alt="Python" src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white">
