@@ -42,11 +42,13 @@ root.
 
 ```bash
 cd dashboard
-uv sync                              # creates dashboard/.venv from the lockfile
-cp .env.example .env                 # fill in your values
-set -a && source .env && set +a      # load env vars into the shell
+uv sync                    # creates dashboard/.venv from the lockfile
+cp .env.example .env       # fill in your values
 uv run streamlit run app.py
 ```
+
+`dashboard/.env` is loaded automatically (via `python-dotenv`), so no `export`
+or `source` step is needed. Use `KEY=value` with no spaces around `=`.
 
 Or with Docker (matches the Railway build):
 

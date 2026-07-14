@@ -9,10 +9,16 @@ variables (see .env.example).
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 import pandas as pd
 from databricks import sql
 from databricks.sdk.core import Config, oauth_service_principal
+from dotenv import load_dotenv
+
+# Load dashboard/.env for local development. On Railway (and any other host that
+# injects the variables directly) the file is absent, so this is a no-op.
+load_dotenv(Path(__file__).with_name(".env"))
 
 # Unity Catalog location of the pipeline output. Catalog is configurable so the
 # same dashboard can point at dev / test / prod; schema names are fixed by the
