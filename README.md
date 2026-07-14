@@ -84,6 +84,11 @@ the pipeline is event-driven rather than scheduled.
 | **Silver** | `*.02_silver.citibike_trips` | Parses multiple timestamp formats, derives `trip_duration_mins` (nulls out impossible >24 h trips), normalises `member_casual`, filters invalid rows, and **upserts** via CDF `MERGE` keeping the latest change per `ride_id`. |
 | **Gold** | `*.03_gold.daily_ride_summary` | For each batch, recomputes **only the affected days** in full from Silver → correct `min`/`max`/`avg`/`count` even under late-arriving data and deletes. |
 
+The gold `daily_ride_summary` table — one row per day with trip counts and
+min / max / avg ride duration:
+
+![Gold daily_ride_summary sample](docs/images/gold-daily-ride-summary.png)
+
 ---
 
 ## Engineering highlights
