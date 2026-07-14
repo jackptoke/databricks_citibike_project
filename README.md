@@ -130,12 +130,16 @@ the pipeline is event-driven rather than scheduled.
 
 ## CI/CD
 
-Two GitHub Actions workflows implement a promote-through-environments flow:
+Three GitHub Actions workflows implement a promote-through-environments flow:
 
-- **`ci.yml`** — on every pull request: `ruff` lint + format check, `pytest`
-  unit tests, and `databricks bundle validate` for each target.
-- **`deploy.yml`** — on merge to `main`, deploy to **test**; deploying to
-  **prod** is gated behind a manual approval (GitHub Environment) / tag.
+- **`ci.yml`** — on every pull request / push: `ruff` lint + format check,
+  `pytest` unit tests, and `databricks bundle validate` for each target.
+- **`deploy.yml`** — on push to `main`, deploy to **dev**; **test** / **prod**
+  deploy via manual dispatch, with `prod` gated behind a GitHub Environment
+  approval.
+- **`run-job.yml`** — manually dispatch a bundle job (`download_citibike_data_job`
+  or `citibike_medallion_job`) in a chosen environment. Deploy only *creates* the
+  job; this *runs* it — as that environment's service principal.
 
 Each of `dev` / `test` / `prod` is a **separate Azure Databricks workspace**.
 Environment-specific *config* (host, catalog, cluster, volume path) lives in the

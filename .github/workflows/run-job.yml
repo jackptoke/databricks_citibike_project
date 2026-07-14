@@ -1,0 +1,44 @@
+name: Run job
+
+# Manually trigger a bundle job in a chosen environment, running as that
+# environment's service principal. `databricks bundle deploy` only creates the
+# job definition — this workflow actually executes it and waits for the result.
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Environment to run in
+        type: choice
+        options: [dev, test, prod]
+        default: dev
+      job:
+        description: Job to run
+        type: choice
+        options:
+          - download_citibike_data_job
+          - citibike_medallion_job
+        default: download_citibike_data_job
+
+concurrency:
+  group: run-${{ inputs.target }}-${{ inputs.job }}
+  cancel-in-progress: false
+
+jobs:
+  run:
+    name: Run ${{ inputs.job }} (${{ inputs.target }})
+    runs-on: ubuntu-latest
+    # Requires credentials; the prod environment can also gate with reviewers.
+    if: ${{ vars.DEPLOY_ENABLED == 'true' }}
+    environment: ${{ inputs.target }}
+    env:
+      DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+      DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Databricks CLI
+        uses: databricks/setup-cli@main
+
+      - name: Run job
+        # Waits for the run to finish and fails the workflow if the job fails.
+        run: databricks bundle run "${{ inputs.job }}" --target "${{ inputs.target }}"
