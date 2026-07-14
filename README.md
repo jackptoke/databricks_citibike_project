@@ -171,12 +171,13 @@ uv run pytest            # unit tests (integration tests skip without a workspac
 uv run pytest -m integration   # run Spark tests against a configured workspace
 ```
 
-### Deploy
+### Deploy & run via the CLI
 
 ```bash
 databricks bundle validate -t dev
-databricks bundle deploy   -t dev
-databricks bundle run citibike_medallion_job -t dev
+databricks bundle deploy   -t dev                        # create/update job definitions
+databricks bundle run download_citibike_data_job -t dev  # backfill the landing volume
+databricks bundle run citibike_medallion_job     -t dev  # run bronze → silver → gold
 ```
 
 `dev` deploys an isolated, user-prefixed copy with triggers paused; `test` /
@@ -184,6 +185,51 @@ databricks bundle run citibike_medallion_job -t dev
 there is no cluster to provision per environment — only each target's
 `catalog` / `schema` / `source_volume_path` in
 [`databricks.yml`](databricks.yml).
+
+> **Deploy ≠ run.** `bundle deploy` only creates/updates the job *definitions*;
+> `bundle run` (or the trigger, or the workflow below) actually *executes* them.
+
+### Trigger through the CI/CD pipeline (recommended)
+
+Deploys happen automatically, and jobs are launched from the **Actions** tab —
+each running as the target environment's service principal, never a personal
+token.
+
+| Workflow | Trigger | What it does |
+|---|---|---|
+| **CI** | pull request / push | `ruff` lint + format, `pytest` unit tests, `bundle validate` |
+| **Deploy** | push to `main` → `dev`; manual dispatch → `test` / `prod` | `bundle deploy` |
+| **Run job** | manual dispatch | `bundle run` for a chosen job in a chosen environment |
+
+**Run a job from the UI:** Actions → **Run job** → *Run workflow* → choose the
+environment (`dev` / `test` / `prod`) and job
+(`download_citibike_data_job` or `citibike_medallion_job`) → *Run workflow*.
+
+**Run a job from the terminal** (still executes in CI, as the service principal):
+
+```bash
+gh workflow run "Run job" -f target=dev -f job=download_citibike_data_job
+gh workflow run "Run job" -f target=dev -f job=citibike_medallion_job
+```
+
+The **Run job** workflow waits for the Databricks run to finish and fails if the
+job fails, so pass/fail shows directly in the Actions run.
+
+> The `download_citibike_data_job` backfills every month from **2016 to the
+> present** into the landing volume — a large one-off download that then
+> file-arrival-triggers the medallion pipeline.
+
+#### One-time setup for CI/CD
+
+1. Create GitHub **Environments** `dev` / `test` / `prod`; add each workspace's
+   OAuth service-principal `DATABRICKS_CLIENT_ID` / `DATABRICKS_CLIENT_SECRET`.
+2. Set repo variables `DATABRICKS_CI_ENABLED=true` and `DEPLOY_ENABLED=true`.
+3. Grant each service principal access in its workspace's Unity Catalog, e.g.
+   ```bash
+   databricks grants update catalog <catalog> \
+     --json '{"changes":[{"principal":"<sp-application-id>","add":["ALL_PRIVILEGES"]}]}'
+   ```
+4. Optionally add required reviewers to the `prod` Environment for a deploy gate.
 
 ---
 
