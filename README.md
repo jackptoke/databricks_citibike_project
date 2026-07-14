@@ -48,7 +48,7 @@ flowchart LR
         G["<b>03 Gold</b><br/>daily_ride_summary<br/>(incremental aggregates)"]
     end
 
-    BI["BI / Analytics"]
+    BI["Streamlit dashboard<br/>(exec snapshot)"]
 
     S3 -->|download notebook| L
     L -->|file-arrival trigger| B
@@ -239,12 +239,20 @@ job fails, so pass/fail shows directly in the Actions run.
 
 ---
 
+## Analytics dashboard
+
+A **Streamlit executive dashboard** in [`dashboard/`](dashboard/) reads the
+silver/gold tables directly from a **Databricks SQL Warehouse** (via an OAuth
+service principal — no BI subscription) and presents a single-page business
+snapshot: KPIs, ridership trends, member vs casual mix, commuter demand
+patterns, e-bike adoption, busiest stations, and auto-generated executive
+takeaways. It ships with a `Dockerfile` for one-click deployment to Railway.
+See [`dashboard/README.md`](dashboard/README.md).
+
 ## Possible extensions
 
 - Add data-quality expectations (Lakeflow Declarative Pipelines / DLT or
   Great Expectations) between layers.
-- Publish the gold table to a dashboard (trips/day, member vs casual, station
-  flows).
 - Add automated data-lineage / freshness monitoring and alerting.
 
 ---
