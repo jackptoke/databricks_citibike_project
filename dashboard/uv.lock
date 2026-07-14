@@ -144,7 +144,7 @@ requires-dist = [
     { name = "plotly", specifier = ">=5.24" },
     { name = "pyarrow", specifier = ">=17" },
     { name = "python-dotenv", specifier = ">=1.0" },
-    { name = "streamlit", specifier = ">=1.40" },
+    { name = "streamlit", specifier = ">=1.49" },
 ]
 
 [package.metadata.requires-dev]

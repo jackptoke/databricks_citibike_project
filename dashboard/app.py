@@ -130,7 +130,7 @@ fig = px.area(
     labels={"trips": "Trips", "month": "", "member_casual": "Rider"},
 )
 fig.update_layout(height=320, legend_title_text="", margin=dict(t=10, b=0))
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, width="stretch")
 
 # --- Demand patterns ---------------------------------------------------------
 c1, c2 = st.columns(2)
@@ -146,14 +146,14 @@ with c1:
         labels={"hr": "Hour", "trips": "Trips", "member_casual": "Rider"},
     )
     fig.update_layout(height=300, legend_title_text="", margin=dict(t=10, b=0), barmode="stack")
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 with c2:
     st.subheader("Which days? (day of week)")
     dow = dow.assign(day=dow["dow"].map(lambda d: DOW_NAMES[int(d) - 1]))
     fig = px.bar(dow, x="day", y="trips", template=PLOT_TMPL, labels={"day": "", "trips": "Trips"})
     fig.update_traces(marker_color="#0B6FB4")
     fig.update_layout(height=300, margin=dict(t=10, b=0))
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 # --- Mix trends --------------------------------------------------------------
 c3, c4 = st.columns(2)
@@ -171,7 +171,7 @@ with c3:
         labels={"pct": "% of trips", "month": ""},
     )
     fig.update_layout(height=300, legend_title_text="", margin=dict(t=10, b=0), yaxis_range=[0, 100])
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 with c4:
     st.subheader("E-bike adoption")
     fleet = (
@@ -189,7 +189,7 @@ with c4:
         labels={"trips": "Trips", "month": "", "rideable_type": "Bike"},
     )
     fig.update_layout(height=300, legend_title_text="", margin=dict(t=10, b=0))
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 # --- Network -----------------------------------------------------------------
 c5, c6 = st.columns((5, 4))
@@ -201,7 +201,7 @@ with c5:
     )
     fig.update_traces(marker_color="#0B6FB4")
     fig.update_layout(height=380, margin=dict(t=10, b=0))
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 with c6:
     st.subheader("Demand map")
     fig = px.scatter_map(
@@ -217,7 +217,7 @@ with c6:
         map_style="carto-positron",
     )
     fig.update_layout(height=380, margin=dict(t=0, b=0, l=0, r=0), coloraxis_showscale=False)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 st.divider()
 

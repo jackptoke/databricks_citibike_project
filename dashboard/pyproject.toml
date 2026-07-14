@@ -5,7 +5,7 @@ description = "Streamlit executive dashboard for the Citibike medallion pipeline
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
-    "streamlit>=1.40",
+    "streamlit>=1.49",
     "databricks-sql-connector>=3.4",
     "databricks-sdk>=0.30",
     "pandas>=2.2",
