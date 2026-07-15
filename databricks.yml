@@ -37,7 +37,9 @@ targets:
     variables:
       source_volume_path: /Volumes/citibike_test/00_landing/source_data/citibike_trips/
     permissions:
-      - user_name: jack.toke_outlook.com#ext#@jacktokeoutlook.onmicrosoft.com
+      # Grant CAN_MANAGE to whoever deploys (a person locally, or the CI service
+      # principal) — avoids hardcoding a personal identity in a public repo.
+      - user_name: ${workspace.current_user.userName}
         level: CAN_MANAGE
   prod:
     mode: production
@@ -50,5 +52,7 @@ targets:
     variables:
       source_volume_path: /Volumes/citibike_prod/00_landing/source_data/citibike_trips/
     permissions:
-      - user_name: jack.toke_outlook.com#ext#@jacktokeoutlook.onmicrosoft.com
+      # Grant CAN_MANAGE to whoever deploys (a person locally, or the CI service
+      # principal) — avoids hardcoding a personal identity in a public repo.
+      - user_name: ${workspace.current_user.userName}
         level: CAN_MANAGE
