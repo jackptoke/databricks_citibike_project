@@ -16,7 +16,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pytest>=8.0",
-    "ruff>=0.6",
+    "ruff>=0.15.22",
     "databricks-dlt",
     "databricks-connect>=17.3,<17.4",
     "ipykernel",
