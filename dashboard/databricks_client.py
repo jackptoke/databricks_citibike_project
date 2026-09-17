@@ -23,7 +23,7 @@ load_dotenv(Path(__file__).with_name(".env"))
 # Unity Catalog location of the pipeline output. Catalog is configurable so the
 # same dashboard can point at dev / test / prod; schema names are fixed by the
 # medallion layout.
-CATALOG = os.getenv("DATABRICKS_CATALOG", "citibike_ext_dev")
+CATALOG = os.getenv("DATABRICKS_CATALOG", "citibike_prod")
 SILVER = f"`{CATALOG}`.`02_silver`.citibike_trips"
 GOLD = f"`{CATALOG}`.`03_gold`.daily_ride_summary"
 

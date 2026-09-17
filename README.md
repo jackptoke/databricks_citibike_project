@@ -32,7 +32,7 @@ business-at-a-glance view — no BI subscription required.
 | **Change Data Feed (CDC)** + idempotent `MERGE` upserts | [Silver notebook](src/notebooks/02_silver/02_silver_citibike.ipynb) |
 | **Correct incremental aggregates** via affected-partition recompute | [Gold notebook](src/notebooks/03_gold/03_gold_citibike.ipynb) |
 | **Schema evolution** across a decade of changing source formats | [`src/shared/canonical.py`](src/shared/canonical.py) |
-| **Infrastructure as code** with multi-env Asset Bundles on **serverless** | [`databricks.yml`](databricks.yml), [`resources/`](resources/) |
+| **Infrastructure as code**: Terraform for Azure + Unity Catalog, multi-env Asset Bundles on **serverless** | [`infra/`](infra/), [`databricks.yml`](databricks.yml), [`resources/`](resources/) |
 | **CI/CD**: lint, test, validate, and gated deploys | [`.github/workflows/`](.github/workflows/) |
 | **Tested code**: fast unit tests + Spark integration tests | [`tests/`](tests/) |
 | **Executive analytics dashboard** (Streamlit → Databricks SQL Warehouse) | [`dashboard/`](dashboard/) |
@@ -121,6 +121,7 @@ min / max / avg ride duration:
 
 ```
 .
+├── infra/                         # Terraform: Azure workspace (azure/) + Unity Catalog, SPs, warehouse (databricks/)
 ├── databricks.yml                 # Bundle definition: dev / test / prod targets + variables
 ├── resources/
 │   ├── 00_download_trips_data_job.yml     # Landing: download & extract source archives
@@ -161,11 +162,13 @@ Three GitHub Actions workflows implement a promote-through-environments flow:
   or `citibike_medallion_job`) in a chosen environment. Deploy only *creates* the
   job; this *runs* it — as that environment's service principal.
 
-Each of `dev` / `test` / `prod` is a **separate Azure Databricks workspace**.
-Environment-specific *config* (workspace host, source volume path) lives in the
-[`databricks.yml`](databricks.yml) targets, while environment-specific
-*credentials* live in **GitHub Environments** of the same name — each holding its
-own workspace's OAuth service-principal `DATABRICKS_CLIENT_ID` /
+`dev` / `test` / `prod` share one **serverless Azure Databricks workspace** and
+are isolated by Unity Catalog: each target has its own catalog
+(`citibike_<target>`) and its own service principal that can only write to that
+catalog. Environment-specific *config* (source volume path, bundle root) lives in
+the [`databricks.yml`](databricks.yml) targets, while environment-specific
+*credentials* live in **GitHub Environments** of the same name — each holding
+that environment's OAuth service-principal `DATABRICKS_CLIENT_ID` /
 `DATABRICKS_CLIENT_SECRET`. A job that declares `environment: <target>`
 automatically picks up the right secrets (and `prod` can require a manual
 approval). No personal tokens live in the repo. See
@@ -178,7 +181,8 @@ approval). No personal tokens live in the repo. See
 ### Prerequisites
 - Python 3.12 and [uv](https://docs.astral.sh/uv/)
 - The [Databricks CLI](https://docs.databricks.com/dev-tools/cli/) (`v0.2+`)
-- A Databricks workspace with Unity Catalog (for actual deployment)
+- An Azure Databricks workspace with Unity Catalog — provision one with
+  [`infra/`](infra/) (Terraform + Azure CLI)
 
 ### Local development
 
@@ -203,8 +207,7 @@ databricks bundle run citibike_medallion_job     -t dev  # run bronze → silver
 `dev` deploys an isolated, user-prefixed copy with triggers paused; `test` /
 `prod` deploy production-mode copies. Jobs run on **serverless compute**, so
 there is no cluster to provision per environment — only each target's
-workspace `host` and `source_volume_path` in
-[`databricks.yml`](databricks.yml).
+`source_volume_path` in [`databricks.yml`](databricks.yml).
 
 > **Deploy ≠ run.** `bundle deploy` only creates/updates the job *definitions*;
 > `bundle run` (or the trigger, or the workflow below) actually *executes* them.
@@ -241,14 +244,13 @@ job fails, so pass/fail shows directly in the Actions run.
 
 #### One-time setup for CI/CD
 
-1. Create GitHub **Environments** `dev` / `test` / `prod`; add each workspace's
-   OAuth service-principal `DATABRICKS_CLIENT_ID` / `DATABRICKS_CLIENT_SECRET`.
-2. Set repo variables `DATABRICKS_CI_ENABLED=true` and `DEPLOY_ENABLED=true`.
-3. Grant each service principal access in its workspace's Unity Catalog, e.g.
-   ```bash
-   databricks grants update catalog <catalog> \
-     --json '{"changes":[{"principal":"<sp-application-id>","add":["ALL_PRIVILEGES"]}]}'
-   ```
+1. Provision the workspace, catalogs, service principals and grants with
+   [`infra/`](infra/README.md).
+2. Create GitHub **Environments** `dev` / `test` / `prod` and add each
+   environment's service-principal `DATABRICKS_CLIENT_ID` /
+   `DATABRICKS_CLIENT_SECRET` (from the Terraform outputs — see
+   [`infra/README.md`](infra/README.md)).
+3. Set repo variables `DATABRICKS_CI_ENABLED=true` and `DEPLOY_ENABLED=true`.
 4. Optionally add required reviewers to the `prod` Environment for a deploy gate.
 
 ---

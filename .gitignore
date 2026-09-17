@@ -30,3 +30,11 @@ scratch/**
 .env
 .env.*
 !.env.example
+
+# Terraform — state holds service-principal secrets; never commit it
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+crash.log
+tfplan
