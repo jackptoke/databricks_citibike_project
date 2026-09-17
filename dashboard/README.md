@@ -29,7 +29,7 @@ Railway variables:
 | `DATABRICKS_SERVER_HOSTNAME` | SQL Warehouse → **Connection details** |
 | `DATABRICKS_HTTP_PATH` | SQL Warehouse → **Connection details** |
 | `DATABRICKS_CLIENT_ID` / `DATABRICKS_CLIENT_SECRET` | Read-only OAuth service principal |
-| `DATABRICKS_CATALOG` | `citibike_ext_dev` (default), or test/prod |
+| `DATABRICKS_CATALOG` | `citibike_prod` (default), or `citibike_dev` / `citibike_test` |
 
 The service principal needs `USE CATALOG` / `USE SCHEMA` + `SELECT` on the
 `02_silver` and `03_gold` tables, and `CAN_USE` on the SQL Warehouse.

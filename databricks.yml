@@ -7,6 +7,11 @@ bundle:
 include:
   - resources/*.yml
 
+# dev / test / prod share one serverless workspace (provisioned by infra/) and
+# are separated by catalog (citibike_<target>) and bundle root path.
+workspace:
+  host: https://adb-7405614049452326.6.azuredatabricks.net
+
 # Variable declarations. These variables are assigned in the dev/test/prod targets below.
 variables:
   source_volume_path:
@@ -20,10 +25,8 @@ targets:
     # See also https://docs.databricks.com/dev-tools/bundles/deployment-modes.html.
     mode: development
     default: true
-    workspace:
-      host: https://adb-7405614172025539.19.azuredatabricks.net
     variables:
-      source_volume_path: /Volumes/citibike_ext_dev/00_landing/source_data/citibike_trips/
+      source_volume_path: /Volumes/citibike_dev/00_landing/source_data/citibike_trips/
     presets:
       artifacts_dynamic_version: true
   test:
@@ -31,7 +34,6 @@ targets:
     presets:
       name_prefix: '[test] '
     workspace:
-      host: https://adb-7405610608524919.19.azuredatabricks.net
       # Deploy to a single shared location so the whole team sees one copy.
       root_path: /Workspace/Shared/.bundle/${bundle.name}/${bundle.target}
     variables:
@@ -46,7 +48,6 @@ targets:
     presets:
       name_prefix: '[prod] '
     workspace:
-      host: https://adb-7405613317938958.18.azuredatabricks.net
       # Deploy to a single shared location so the whole team sees one copy.
       root_path: /Workspace/Shared/.bundle/${bundle.name}/${bundle.target}
     variables:
