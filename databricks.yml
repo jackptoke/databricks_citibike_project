@@ -8,7 +8,8 @@ include:
   - resources/*.yml
 
 # dev / test / prod share one serverless workspace (provisioned by infra/) and
-# are separated by catalog (citibike_<target>) and bundle root path.
+# are separated by catalog (citibike_<target>) and bundle root path. test/prod
+# live under the deployer's home folder, so always deploy them as the same identity.
 workspace:
   host: https://adb-7405614049452326.6.azuredatabricks.net
 
@@ -16,6 +17,12 @@ workspace:
 variables:
   source_volume_path:
     description: UC Volume path Auto Loader watches for new Citibike archives
+  runner_sp:
+    description: >-
+      Service principal that test/prod jobs run as. It owns the tables in its
+      catalog (infra/databricks grants it ALL_PRIVILEGES), so runs don't depend
+      on who deployed.
+    default: ""
 
 targets:
   dev:
@@ -34,26 +41,42 @@ targets:
     presets:
       name_prefix: '[test] '
     workspace:
-      # Deploy to a single shared location so the whole team sees one copy.
-      root_path: /Workspace/Shared/.bundle/${bundle.name}/${bundle.target}
+      # Deployer's home folder: writable only by them (and admins).
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
     variables:
       source_volume_path: /Volumes/citibike_test/00_landing/source_data/citibike_trips/
+      runner_sp:
+        lookup:
+          service_principal: citibike-test-deployer
+    run_as:
+      service_principal_name: ${var.runner_sp}
     permissions:
       # Grant CAN_MANAGE to whoever deploys (a person locally, or the CI service
       # principal) — avoids hardcoding a personal identity in a public repo.
       - user_name: ${workspace.current_user.userName}
         level: CAN_MANAGE
+      # The run_as SP must read the notebooks in the deployer's home folder.
+      - service_principal_name: ${var.runner_sp}
+        level: CAN_VIEW
   prod:
     mode: production
     presets:
       name_prefix: '[prod] '
     workspace:
-      # Deploy to a single shared location so the whole team sees one copy.
-      root_path: /Workspace/Shared/.bundle/${bundle.name}/${bundle.target}
+      # Deployer's home folder: writable only by them (and admins).
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
     variables:
       source_volume_path: /Volumes/citibike_prod/00_landing/source_data/citibike_trips/
+      runner_sp:
+        lookup:
+          service_principal: citibike-prod-deployer
+    run_as:
+      service_principal_name: ${var.runner_sp}
     permissions:
       # Grant CAN_MANAGE to whoever deploys (a person locally, or the CI service
       # principal) — avoids hardcoding a personal identity in a public repo.
       - user_name: ${workspace.current_user.userName}
         level: CAN_MANAGE
+      # The run_as SP must read the notebooks in the deployer's home folder.
+      - service_principal_name: ${var.runner_sp}
+        level: CAN_VIEW

@@ -36,10 +36,21 @@ databricks account workspace-assignment update <workspace-id> <user-principal-id
   --json '{"permissions":["ADMIN"]}' --profile <account-profile>
 ```
 
+The Databricks layer also needs your account ID (account console → user
+menu) in the git-ignored `infra/databricks/terraform.tfvars`:
+
+```hcl
+account_id = "<databricks-account-id>"
+```
+
 ```bash
 terraform -chdir=infra/databricks init
 terraform -chdir=infra/databricks apply
 ```
+
+This also gives you `servicePrincipal.user` on the test/prod deployer service
+principals, which `databricks bundle deploy` needs to set their jobs'
+`run_as`.
 
 Catalog names must be unique across the regional metastore, which this
 workspace shares with others in the account. If a `citibike_*` catalog from an

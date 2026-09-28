@@ -14,3 +14,14 @@ variable "dashboard_environment" {
     error_message = "dashboard_environment must be dev, test or prod."
   }
 }
+
+variable "account_id" {
+  description = "Databricks account ID (account console → user menu). Needed for service-principal rule sets; set it in the git-ignored terraform.tfvars."
+  type        = string
+}
+
+variable "runner_sp_environments" {
+  description = "Environments whose jobs run as their deployer service principal (bundle run_as), so whoever applies Terraform can deploy them."
+  type        = set(string)
+  default     = ["test", "prod"]
+}
